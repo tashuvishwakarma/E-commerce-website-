@@ -70,13 +70,12 @@ State management for cart/wishlist
 Form validation
 Image optimization
 Performance optimization
-The website is fully functional and ready to use. You can:
-Browse products by category
-View product details
-Add products to cart/wishlist
-Adjust quantities
-Complete checkout process
 
-Toggle dark/light mode
-
-Save preferences locally
+10 he website is fully functional and ready to use. You can:
+Browse products by category ,
+View product details ,
+Add products to cart/wishlist ,
+Adjust quantities ,
+Complete checkout process ,
+Toggle dark/light mode ,
+Save preferences locally .
