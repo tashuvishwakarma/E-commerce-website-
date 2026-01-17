@@ -82,8 +82,6 @@ Save preferences locally .
 
 <img width="250" height="800" alt="product_catalog" src="https://github.com/user-attachments/assets/cb5b5a10-689a-4d6a-bd40-b28cc100c0d0" />
 
-
-next image of project 
 <img width="250" height="800" alt="hi" src="https://github.com/user-attachments/assets/76b8af1c-7c13-410d-8ae8-aa52ac4ee09a" />
 
 
