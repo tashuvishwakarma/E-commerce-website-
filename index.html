@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Avian Haven - Bird Watching Store</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2c7677",
+                        "secondary": "#E8A190",
+                        "background-light": "#f8f8f7",
+                        "background-dark": "#1a2526",
+                        "accent": "#4CAF50",
+                        "sale": "#FF5252"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .page {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .page.active {
+            display: block;
+            opacity: 1;
+        }
+        .active-tab {
+            color: #2c7677;
+        }
+        .active-tab .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+        .product-image {
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #FF5252;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .cart-item {
+            transition: all 0.2s ease;
+        }
+        .cart-item:hover {
+            background: rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-background-dark z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-primary font-semibold">Loading Avian Haven...</p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="max-w-[480px] mx-auto min-h-screen bg-white dark:bg-background-dark shadow-xl overflow-hidden hidden">
+        <!-- Home Page -->
+        <div id="homePage" class="page active">
+            <!-- Top Bar -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-2xl">spa</span>
+                        <h1 class="text-xl font-bold text-primary">Avian Haven</h1>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full" onclick="toggleDarkMode()">
+                            <span class="material-symbols-outlined">dark_mode</span>
+                        </button>
+                        <button class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full" onclick="showNotifications()">
+                            <span class="material-symbols-outlined">notifications</span>
+                            <span id="notificationDot" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <button class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full" onclick="showPage('cartPage')">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span id="cartBadge" class="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="mt-4 relative">
+                    <input type="text" 
+                           id="searchInput"
+                           placeholder="Search for binoculars, feeders, books..."
+                           class="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+                </div>
+            </div>
+
+            <!-- Hero Banner -->
+            <div class="px-4 py-4">
+                <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-6 text-white">
+                    <h2 class="text-2xl font-bold mb-2">Spring Migration Sale</h2>
+                    <p class="mb-4">Get 30% off on all binoculars & scopes</p>
+                    <button onclick="showPage('productsPage')" class="bg-white text-primary px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+                        Shop Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="px-4 py-2">
+                <h3 class="text-lg font-bold mb-4">Shop by Category</h3>
+                <div class="grid grid-cols-4 gap-3">
+                    <button onclick="filterCategory('optics')" class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">visibility</span>
+                        <span class="text-xs font-semibold">Optics</span>
+                    </button>
+                    <button onclick="filterCategory('feeders')" class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">nest</span>
+                        <span class="text-xs font-semibold">Feeders</span>
+                    </button>
+                    <button onclick="filterCategory('books')" class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">menu_book</span>
+                        <span class="text-xs font-semibold">Books</span>
+                    </button>
+                    <button onclick="filterCategory('apparel')" class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">checkroom</span>
+                        <span class="text-xs font-semibold">Apparel</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="px-4 py-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">Featured Products</h3>
+                    <button onclick="showPage('productsPage')" class="text-primary text-sm font-semibold">View All</button>
+                </div>
+                <div id="featuredProducts" class="grid grid-cols-2 gap-4">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Daily Tip -->
+            <div class="px-4 py-4">
+                <div class="bg-primary/10 dark:bg-primary/20 rounded-2xl p-4">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-primary text-2xl">lightbulb</span>
+                        <div>
+                            <h4 class="font-bold text-primary mb-1">Birding Tip of the Day</h4>
+                            <p id="dailyTip" class="text-sm text-gray-600 dark:text-gray-300">Early morning hours (dawn to 9 AM) are the best time for bird watching as birds are most active during this period.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Page -->
+        <div id="productsPage" class="page">
+            <!-- Products Header -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <button onclick="showPage('homePage')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <h2 class="text-lg font-bold">All Products</h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFilters()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                            <span class="material-symbols-outlined">filter_list</span>
+                        </button>
+                        <button onclick="toggleSort()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                            <span class="material-symbols-outlined">sort</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Panel -->
+            <div id="filtersPanel" class="hidden px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold mb-2">Price Range</h4>
+                        <input type="range" id="priceRange" min="0" max="2000" value="2000" class="w-full">
+                        <div class="flex justify-between text-sm">
+                            <span>$0</span>
+                            <span id="maxPrice">$2000</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Categories</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="filterCategory('all')" class="px-3 py-1 bg-primary text-white rounded-full text-sm">All</button>
+                            <button onclick="filterCategory('optics')" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm">Optics</button>
+                            <button onclick="filterCategory('feeders')" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm">Feeders</button>
+                            <button onclick="filterCategory('books')" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm">Books</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="p-4">
+                <div id="productsGrid" class="grid grid-cols-2 gap-4">
+                    <!-- Products will be loaded here -->
+                </div>
+                <div id="loadingMore" class="text-center py-8 hidden">
+                    <div class="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Detail Page -->
+        <div id="productDetailPage" class="page">
+            <!-- Product Header -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <button onclick="showPage('productsPage')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <button onclick="addToWishlist(currentProduct)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span id="wishlistIcon" class="material-symbols-outlined">favorite</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Product Images -->
+            <div class="relative">
+                <div id="productImage" class="w-full h-64 bg-gray-200 dark:bg-gray-800"></div>
+                <div class="absolute bottom-4 right-4 flex gap-2">
+                    <button onclick="previousImage()" class="bg-white/80 dark:bg-black/80 p-2 rounded-full">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button onclick="nextImage()" class="bg-white/80 dark:bg-black/80 p-2 rounded-full">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4 space-y-4">
+                <div>
+                    <span id="productCategory" class="text-xs text-primary font-semibold uppercase"></span>
+                    <h2 id="productTitle" class="text-xl font-bold"></h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="flex text-yellow-400">
+                            <span class="material-symbols-outlined">star</span>
+                            <span class="material-symbols-outlined">star</span>
+                            <span class="material-symbols-outlined">star</span>
+                            <span class="material-symbols-outlined">star</span>
+                            <span class="material-symbols-outlined">star_half</span>
+                        </div>
+                        <span id="productRating" class="text-sm text-gray-500">(4.5)</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <span id="productPrice" class="text-2xl font-bold text-primary"></span>
+                        <span id="productOldPrice" class="text-lg text-gray-400 line-through"></span>
+                        <span id="productDiscount" class="bg-sale text-white px-2 py-1 rounded text-sm font-bold"></span>
+                    </div>
+                    <p id="productStock" class="text-sm text-accent mt-1">In Stock</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-2">Description</h4>
+                    <p id="productDescription" class="text-gray-600 dark:text-gray-300"></p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-2">Specifications</h4>
+                    <div id="productSpecs" class="space-y-1 text-sm text-gray-600 dark:text-gray-300"></div>
+                </div>
+
+                <!-- Add to Cart -->
+                <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 p-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg">
+                            <button onclick="updateQuantity(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <span class="material-symbols-outlined">remove</span>
+                            </button>
+                            <span id="quantity" class="px-4 font-semibold">1</span>
+                            <button onclick="updateQuantity(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
+                        </div>
+                        <button onclick="addToCart(currentProduct)" class="flex-1 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-[#235a5b] transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">add_shopping_cart</span>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Page -->
+        <div id="cartPage" class="page">
+            <!-- Cart Header -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <button onclick="showPage('homePage')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <h2 class="text-lg font-bold">Shopping Cart</h2>
+                    <button onclick="clearCart()" class="text-sm text-gray-500 hover:text-red-500">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cart Items -->
+            <div id="cartItems" class="p-4 space-y-4">
+                <!-- Cart items will be loaded here -->
+                <div id="emptyCart" class="text-center py-12">
+                    <span class="material-symbols-outlined text-5xl text-gray-300 mb-4">shopping_cart</span>
+                    <p class="text-gray-500 mb-4">Your cart is empty</p>
+                    <button onclick="showPage('productsPage')" class="bg-primary text-white px-6 py-2 rounded-lg font-semibold">
+                        Start Shopping
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div id="cartSummary" class="hidden border-t border-gray-200 dark:border-gray-800 p-4 space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Subtotal</span>
+                    <span id="subtotal" class="font-semibold">$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Shipping</span>
+                    <span id="shipping" class="font-semibold">$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Tax</span>
+                    <span id="tax" class="font-semibold">$0.00</span>
+                </div>
+                <div class="border-t pt-3 flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span id="total" class="text-primary">$0.00</span>
+                </div>
+                
+                <!-- Checkout Button -->
+                <button onclick="showPage('checkoutPage')" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-[#235a5b] transition-colors mt-4">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <div id="checkoutPage" class="page">
+            <!-- Checkout Header -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <button onclick="showPage('cartPage')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <h2 class="text-lg font-bold">Checkout</h2>
+                    <div class="w-10"></div>
+                </div>
+            </div>
+
+            <!-- Checkout Steps -->
+            <div class="px-4 py-3 border-b">
+                <div class="flex justify-between items-center">
+                    <div class="text-center">
+                        <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-1">1</div>
+                        <span class="text-xs font-semibold">Details</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+                    <div class="text-center">
+                        <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-1">2</div>
+                        <span class="text-xs text-gray-500">Shipping</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+                    <div class="text-center">
+                        <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-1">3</div>
+                        <span class="text-xs text-gray-500">Payment</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkout Form -->
+            <div class="p-4 space-y-6">
+                <!-- Contact Information -->
+                <div>
+                    <h3 class="font-bold mb-4">Contact Information</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="email" placeholder="Email" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                        <div class="flex gap-3">
+                            <input type="text" id="firstName" placeholder="First Name" class="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                            <input type="text" id="lastName" placeholder="Last Name" class="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div>
+                    <h3 class="font-bold mb-4">Shipping Address</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="address" placeholder="Address" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                        <div class="flex gap-3">
+                            <input type="text" id="city" placeholder="City" class="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                            <input type="text" id="zipCode" placeholder="ZIP Code" class="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                        </div>
+                        <select id="country" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent">
+                            <option value="">Select Country</option>
+                            <option value="us">United States</option>
+                            <option value="ca">Canada</option>
+                            <option value="uk">United Kingdom</option>
+                            <option value="au">Australia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Shipping Method -->
+                <div>
+                    <h3 class="font-bold mb-4">Shipping Method</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between p-3 border border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer">
+                            <div>
+                                <div class="font-semibold">Standard Shipping</div>
+                                <div class="text-sm text-gray-500">5-7 business days</div>
+                            </div>
+                            <div class="font-semibold">$5.99</div>
+                            <input type="radio" name="shipping" value="standard" class="text-primary" checked>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer">
+                            <div>
+                                <div class="font-semibold">Express Shipping</div>
+                                <div class="text-sm text-gray-500">2-3 business days</div>
+                            </div>
+                            <div class="font-semibold">$12.99</div>
+                            <input type="radio" name="shipping" value="express" class="text-primary">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="border-t pt-4">
+                    <h3 class="font-bold mb-4">Order Summary</h3>
+                    <div id="checkoutItems" class="space-y-2 mb-4">
+                        <!-- Items will be loaded here -->
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span id="checkoutSubtotal">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Shipping</span>
+                            <span id="checkoutShipping">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tax</span>
+                            <span id="checkoutTax">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold border-t pt-2">
+                            <span>Total</span>
+                            <span id="checkoutTotal">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Place Order Button -->
+                <button onclick="placeOrder()" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-[#235a5b] transition-colors">
+                    Place Order
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Confirmation Page -->
+        <div id="orderConfirmationPage" class="page">
+            <div class="h-screen flex flex-col items-center justify-center p-8 text-center">
+                <div class="w-20 h-20 bg-accent text-white rounded-full flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-4xl">check</span>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Order Confirmed!</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Thank you for your purchase. Your order has been successfully placed.</p>
+                <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-6 mb-6 w-full">
+                    <div class="font-semibold mb-2">Order #ORD123456</div>
+                    <div class="text-sm text-gray-500">Estimated delivery: 5-7 business days</div>
+                </div>
+                <button onclick="showPage('homePage')" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-[#235a5b] transition-colors">
+                    Continue Shopping
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="page">
+            <div class="p-4">
+                <!-- Profile Header -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-3xl">person</span>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">John Birder</h2>
+                        <p class="text-gray-500">john@avianhaven.com</p>
+                    </div>
+                </div>
+
+                <!-- Menu Items -->
+                <div class="space-y-2">
+                    <button onclick="showOrders()" class="w-full flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">shopping_bag</span>
+                            <span>My Orders</span>
+                        </div>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                    <button onclick="showWishlist()" class="w-full flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">favorite</span>
+                            <span>Wishlist</span>
+                        </div>
+                        <span id="wishlistCount" class="bg-primary text-white text-xs px-2 py-1 rounded-full">0</span>
+                    </button>
+                    <button onclick="showAddresses()" class="w-full flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">location_on</span>
+                            <span>Saved Addresses</span>
+                        </div>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                    <button onclick="showSettings()" class="w-full flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">settings</span>
+                            <span>Settings</span>
+                        </div>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+
+                <!-- Logout Button -->
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-4 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg mt-6">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 p-3 max-w-[480px] mx-auto">
+            <div class="flex justify-around">
+                <button onclick="showPage('homePage')" class="flex flex-col items-center gap-1 text-primary">
+                    <span class="material-symbols-outlined font-variation-fill">home</span>
+                    <span class="text-xs font-semibold">Home</span>
+                </button>
+                <button onclick="showPage('productsPage')" class="flex flex-col items-center gap-1 text-gray-500">
+                    <span class="material-symbols-outlined">category</span>
+                    <span class="text-xs font-semibold">Shop</span>
+                </button>
+                <button onclick="showPage('cartPage')" class="flex flex-col items-center gap-1 text-gray-500 relative">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <span class="text-xs font-semibold">Cart</span>
+                    <span id="navCartBadge" class="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                </button>
+                <button onclick="showPage('profilePage')" class="flex flex-col items-center gap-1 text-gray-500">
+                    <span class="material-symbols-outlined">person</span>
+                    <span class="text-xs font-semibold">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transition-all duration-300">
+        <div class="flex items-center gap-2">
+            <span id="toastIcon" class="material-symbols-outlined">check_circle</span>
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div id="wishlistModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-background-dark rounded-2xl w-full max-h-[80vh] overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold">My Wishlist</h3>
+                    <button onclick="hideModal('wishlistModal')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            <div id="wishlistItems" class="p-4 overflow-y-auto max-h-[60vh]">
+                <!-- Wishlist items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notificationsModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-background-dark rounded-2xl w-full max-h-[80vh] overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold">Notifications</h3>
+                    <button onclick="hideModal('notificationsModal')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 overflow-y-auto max-h-[60vh] space-y-3">
+                <div class="p-3 bg-primary/10 rounded-lg">
+                    <div class="font-semibold">Spring Sale Started!</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Get 30% off on all optics</div>
+                </div>
+                <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <div class="font-semibold">Your order has shipped</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">Order #ORD123456 is on its way</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        const state = {
+            cart: JSON.parse(localStorage.getItem('cart')) || [],
+            wishlist: JSON.parse(localStorage.getItem('wishlist')) || [],
+            user: JSON.parse(localStorage.getItem('user')) || { name: "John Birder", email: "john@avianhaven.com" },
+            currentProduct: null,
+            quantity: 1,
+            orders: [],
+            darkMode: localStorage.getItem('darkMode') === 'true'
+        };
+
+        // Product Database
+        const products = [
+            {
+                id: 1,
+                name: "Vortex Diamondback HD 10x42",
+                category: "optics",
+                price: 329.99,
+                oldPrice: 399.99,
+                discount: 18,
+                rating: 4.7,
+                stock: 15,
+                description: "Premium binoculars with HD optics for clear, bright images. Perfect for bird watching.",
+                images: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'],
+                specs: ["10x Magnification", "42mm Objective Lens", "HD Optical System", "Waterproof", "Lifetime Warranty"]
+            },
+            {
+                id: 2,
+                name: "Nikon Monarch M7 8x42",
+                category: "optics",
+                price: 489.99,
+                oldPrice: 549.99,
+                discount: 11,
+                rating: 4.8,
+                stock: 8,
+                description: "High-performance binoculars with extra-low dispersion glass for superior clarity.",
+                images: ['https://images.unsplash.com/photo-1540555700478-4be289d6c9c8?w=400'],
+                specs: ["8x Magnification", "42mm Objective", "ED Glass", "Waterproof & Fogproof", "25-Year Warranty"]
+            },
+            {
+                id: 3,
+                name: "Smart Bird Feeder Camera",
+                category: "feeders",
+                price: 199.99,
+                oldPrice: 249.99,
+                discount: 20,
+                rating: 4.5,
+                stock: 25,
+                description: "AI-powered bird feeder with HD camera and solar panel. Identify birds automatically.",
+                images: ['https://images.unsplash.com/photo-1551085254-e96b210db58a?w-400'],
+                specs: ["1080p HD Camera", "Solar Powered", "Bird Recognition AI", "Weatherproof", "App Connectivity"]
+            },
+            {
+                id: 4,
+                name: "Sibley Birds Field Guide",
+                category: "books",
+                price: 29.99,
+                rating: 4.9,
+                stock: 50,
+                description: "Comprehensive field guide with illustrations of 810 North American bird species.",
+                images: ['https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'],
+                specs: ["810 Species", "Color Illustrations", "Range Maps", "Flexible Cover", "704 Pages"]
+            },
+            {
+                id: 5,
+                name: "Waterproof Birding Jacket",
+                category: "apparel",
+                price: 89.99,
+                oldPrice: 119.99,
+                discount: 25,
+                rating: 4.4,
+                stock: 30,
+                description: "Lightweight waterproof jacket with multiple pockets for bird watching essentials.",
+                images: ['https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400'],
+                specs: ["Waterproof & Breathable", "Multiple Pockets", "Adjustable Hood", "Lightweight", "UV Protection"]
+            },
+            {
+                id: 6,
+                name: "Celestron TrailSeeker ED 8x42",
+                category: "optics",
+                price: 279.99,
+                rating: 4.6,
+                stock: 12,
+                description: "Compact and lightweight binoculars with exceptional optical performance.",
+                images: ['https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400'],
+                specs: ["8x Magnification", "42mm ED Glass", "Waterproof", "Twist-up Eyecups", "10-Year Warranty"]
+            },
+            {
+                id: 7,
+                name: "Window Bird Feeder",
+                category: "feeders",
+                price: 24.99,
+                rating: 4.3,
+                stock: 40,
+                description: "Suction cup window feeder for up-close bird viewing from indoors.",
+                images: ['https://images.unsplash.com/photo-1551085254-e96b210db58a?w=400'],
+                specs: ["Suction Cup Mount", "Easy to Clean", "Weather Resistant", "Holds 2 Cups Seed", "Transparent Design"]
+            },
+            {
+                id: 8,
+                name: "National Geographic Birding Journal",
+                category: "books",
+                price: 19.99,
+                rating: 4.7,
+                stock: 35,
+                description: "Guided journal for recording bird sightings, notes, and observations.",
+                images: ['https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400'],
+                specs: ["192 Pages", "Waterproof Cover", "Species Checklist", "Note Sections", "Pocket Size"]
+            }
+        ];
+
+        // Tips Database
+        const tips = [
+            "Early morning hours (dawn to 9 AM) are the best time for bird watching as birds are most active during this period.",
+            "Use camouflage clothing and move slowly to avoid startling birds. Sudden movements will scare them away.",
+            "Learn bird calls - 90% of birding is done by ear! Use apps to help identify different species.",
+            "Carry a field notebook to record your observations, including date, location, weather, and behavior notes.",
+            "Respect nesting sites and keep a safe distance. Use binoculars or a scope to observe from afar.",
+            "Set up bird feeders in your backyard to attract different species for easy observation from home.",
+            "Join local birding groups or clubs to learn from experienced birders and discover new locations.",
+            "Keep a bird identification guide handy, either as a book or on your phone with a birding app."
+        ];
+
+        // Initialize App
+        function init() {
+            // Set dark mode
+            if (state.darkMode) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Load featured products
+            loadFeaturedProducts();
+            
+            // Load products grid
+            loadProducts();
+            
+            // Load cart
+            updateCart();
+            
+            // Load wishlist
+            updateWishlist();
+            
+            // Set daily tip
+            setDailyTip();
+            
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('app').classList.remove('hidden');
+            }, 1000);
+        }
+
+        // Navigation Functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show requested page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update cart on cart page
+            if (pageId === 'cartPage') {
+                updateCart();
+            }
+            
+            // Update checkout on checkout page
+            if (pageId === 'checkoutPage') {
+                updateCheckout();
+            }
+        }
+
+        function showProductDetail(product) {
+            state.currentProduct = product;
+            state.quantity = 1;
+            
+            // Update product details
+            document.getElementById('productTitle').textContent = product.name;
+            document.getElementById('productCategory').textContent = product.category.toUpperCase();
+            document.getElementById('productPrice').textContent = `$${product.price.toFixed(2)}`;
+            document.getElementById('productRating').textContent = `(${product.rating})`;
+            document.getElementById('productDescription').textContent = product.description;
+            document.getElementById('productStock').textContent = product.stock > 0 ? 'In Stock' : 'Out of Stock';
+            document.getElementById('quantity').textContent = state.quantity;
+            
+            // Handle discount
+            if (product.oldPrice) {
+                document.getElementById('productOldPrice').textContent = `$${product.oldPrice.toFixed(2)}`;
+                document.getElementById('productDiscount').textContent = `${product.discount}% OFF`;
+            } else {
+                document.getElementById('productOldPrice').style.display = 'none';
+                document.getElementById('productDiscount').style.display = 'none';
+            }
+            
+            // Update specs
+            const specsContainer = document.getElementById('productSpecs');
+            specsContainer.innerHTML = product.specs.map(spec => 
+                `<div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">check</span>
+                    <span>${spec}</span>
+                </div>`
+            ).join('');
+            
+            // Update image
+            const imageContainer = document.getElementById('productImage');
+            imageContainer.style.backgroundImage = `url('${product.images[0]}')`;
+            imageContainer.style.backgroundSize = 'cover';
+            imageContainer.style.backgroundPosition = 'center';
+            
+            // Update wishlist icon
+            const isInWishlist = state.wishlist.some(item => item.id === product.id);
+            document.getElementById('wishlistIcon').textContent = isInWishlist ? 'favorite' : 'favorite_border';
+            
+            showPage('productDetailPage');
+        }
+
+        // Product Functions
+        function loadFeaturedProducts() {
+            const container = document.getElementById('featuredProducts');
+            const featured = products.slice(0, 4);
+            
+            container.innerHTML = featured.map(product => `
+                <div class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="relative h-40 bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                        <div class="product-image w-full h-full" style="background-image: url('${product.images[0]}'); background-size: cover; background-position: center;"></div>
+                        ${product.oldPrice ? `<div class="discount-badge">${product.discount}% OFF</div>` : ''}
+                        <button onclick="addToWishlist(${product.id})" class="absolute top-2 right-2 bg-white/80 dark:bg-black/80 p-2 rounded-full">
+                            <span class="material-symbols-outlined text-sm">favorite_border</span>
+                        </button>
+                    </div>
+                    <div class="p-3">
+                        <div class="text-xs text-primary font-semibold uppercase mb-1">${product.category}</div>
+                        <h4 class="font-bold text-sm mb-2 line-clamp-1">${product.name}</h4>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-primary">$${product.price.toFixed(2)}</div>
+                                ${product.oldPrice ? `<div class="text-xs text-gray-400 line-through">$${product.oldPrice.toFixed(2)}</div>` : ''}
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-primary text-white p-2 rounded-lg hover:bg-[#235a5b]">
+                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadProducts() {
+            const container = document.getElementById('productsGrid');
+            container.innerHTML = products.map(product => `
+                <div class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden cursor-pointer" onclick="showProductDetail(${product.id})">
+                        <div class="product-image w-full h-full" style="background-image: url('${product.images[0]}'); background-size: cover; background-position: center;"></div>
+                        ${product.oldPrice ? `<div class="discount-badge">${product.discount}% OFF</div>` : ''}
+                    </div>
+                    <div class="p-3">
+                        <div class="text-xs text-primary font-semibold uppercase mb-1">${product.category}</div>
+                        <h4 class="font-bold mb-2 line-clamp-1 cursor-pointer" onclick="showProductDetail(${product.id})">${product.name}</h4>
+                        <div class="flex items-center gap-1 mb-2">
+                            <div class="flex text-yellow-400">
+                                ${Array(5).fill().map((_, i) => 
+                                    `<span class="material-symbols-outlined ${i < Math.floor(product.rating) ? 'fill-current' : i < product.rating ? 'star_half' : ''}">star</span>`
+                                ).join('')}
+                            </div>
+                            <span class="text-sm text-gray-500">(${product.rating})</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-primary">$${product.price.toFixed(2)}</div>
+                                ${product.oldPrice ? `<div class="text-xs text-gray-400 line-through">$${product.oldPrice.toFixed(2)}</div>` : ''}
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-primary text-white p-2 rounded-lg hover:bg-[#235a5b]">
+                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(category) {
+            showPage('productsPage');
+            showToast(`Filtering by: ${category}`);
+            // In a real app, this would filter the products
+        }
+
+        function toggleFilters() {
+            const panel = document.getElementById('filtersPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function toggleSort() {
+            showToast('Sort options');
+        }
+
+        function updateQuantity(change) {
+            state.quantity = Math.max(1, state.quantity + change);
+            document.getElementById('quantity').textContent = state.quantity;
+        }
+
+        // Cart Functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = state.cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                state.cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCart();
+            showToast(`${product.name} added to cart`, 'shopping_cart');
+        }
+
+        function updateCart() {
+            // Update cart badge
+            const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+            document.getElementById('navCartBadge').textContent = totalItems;
+            
+            // Update cart page
+            const cartItems = document.getElementById('cartItems');
+            const cartSummary = document.getElementById('cartSummary');
+            const emptyCart = document.getElementById('emptyCart');
+            
+            if (state.cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div id="emptyCart" class="text-center py-12">
+                        <span class="material-symbols-outlined text-5xl text-gray-300 mb-4">shopping_cart</span>
+                        <p class="text-gray-500 mb-4">Your cart is empty</p>
+                        <button onclick="showPage('productsPage')" class="bg-primary text-white px-6 py-2 rounded-lg font-semibold">
+                            Start Shopping
+                        </button>
+                    </div>
+                `;
+                cartSummary.classList.add('hidden');
+                return;
+            }
+            
+            // Remove empty cart message
+            emptyCart?.remove();
+            
+            // Update cart items
+            cartItems.innerHTML = state.cart.map(item => `
+                <div class="cart-item bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex gap-3">
+                        <div class="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg" 
+                             style="background-image: url('${item.images[0]}'); background-size: cover; background-position: center;"></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h4 class="font-semibold">${item.name}</h4>
+                                <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-500 mb-2">${item.category}</div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg">
+                                    <button onclick="updateCartQuantity(${item.id}, -1)" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <span class="material-symbols-outlined text-sm">remove</span>
+                                    </button>
+                                    <span class="px-3">${item.quantity}</span>
+                                    <button onclick="updateCartQuantity(${item.id}, 1)" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <span class="material-symbols-outlined text-sm">add</span>
+                                    </button>
+                                </div>
+                                <div class="font-bold text-primary">$${(item.price * item.quantity).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update summary
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal > 100 ? 0 : 5.99;
+            const tax = subtotal * 0.08;
+            const total = subtotal + shipping + tax;
+            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+            
+            cartSummary.classList.remove('hidden');
+        }
+
+        function updateCartQuantity(productId, change) {
+            const item = state.cart.find(item => item.id === productId);
+            if (!item) return;
+            
+            item.quantity = Math.max(1, item.quantity + change);
+            saveCart();
+            updateCart();
+        }
+
+        function removeFromCart(productId) {
+            state.cart = state.cart.filter(item => item.id !== productId);
+            saveCart();
+            updateCart();
+            showToast('Item removed from cart');
+        }
+
+        function clearCart() {
+            if (state.cart.length === 0) return;
+            
+            if (confirm('Are you sure you want to clear your cart?')) {
+                state.cart = [];
+                saveCart();
+                updateCart();
+                showToast('Cart cleared');
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(state.cart));
+        }
+
+        // Wishlist Functions
+        function addToWishlist(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const isInWishlist = state.wishlist.some(item => item.id === productId);
+            
+            if (isInWishlist) {
+                state.wishlist = state.wishlist.filter(item => item.id !== productId);
+                showToast('Removed from wishlist');
+            } else {
+                state.wishlist.push(product);
+                showToast('Added to wishlist', 'favorite');
+            }
+            
+            saveWishlist();
+            updateWishlist();
+            
+            // Update wishlist icon if on product page
+            if (state.currentProduct && state.currentProduct.id === productId) {
+                document.getElementById('wishlistIcon').textContent = isInWishlist ? 'favorite_border' : 'favorite';
+            }
+        }
+
+        function updateWishlist() {
+            document.getElementById('wishlistCount').textContent = state.wishlist.length;
+            localStorage.setItem('wishlist', JSON.stringify(state.wishlist));
+        }
+
+        function showWishlist() {
+            const container = document.getElementById('wishlistItems');
+            if (state.wishlist.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">Your wishlist is empty</div>';
+            } else {
+                container.innerHTML = state.wishlist.map(product => `
+                    <div class="flex items-center gap-3 p-3 border-b border-gray-200 dark:border-gray-800">
+                        <div class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg" 
+                             style="background-image: url('${product.images[0]}'); background-size: cover; background-position: center;"></div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold">${product.name}</h4>
+                            <div class="text-primary font-bold">$${product.price.toFixed(2)}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="addToCart(${product.id})" class="bg-primary text-white p-2 rounded-lg">
+                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                            </button>
+                            <button onclick="addToWishlist(${product.id})" class="p-2 text-red-500">
+                                <span class="material-symbols-outlined">favorite</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            showModal('wishlistModal');
+        }
+
+        // Checkout Functions
+        function updateCheckout() {
+            // Update items
+            const container = document.getElementById('checkoutItems');
+            container.innerHTML = state.cart.map(item => `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="font-medium">${item.name}</div>
+                        <div class="text-sm text-gray-500">Qty: ${item.quantity}</div>
+                    </div>
+                    <div class="font-semibold">$${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+            `).join('');
+            
+            // Update totals
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = document.querySelector('input[name="shipping"]:checked').value === 'express' ? 12.99 : 5.99;
+            const tax = subtotal * 0.08;
+            const total = subtotal + shipping + tax;
+            
+            document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('checkoutShipping').textContent = `$${shipping.toFixed(2)}`;
+            document.getElementById('checkoutTax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('checkoutTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function placeOrder() {
+            // Validate form
+            const email = document.getElementById('email').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const zipCode = document.getElementById('zipCode').value;
+            const country = document.getElementById('country').value;
+            
+            if (!email || !firstName || !lastName || !address || !city || !zipCode || !country) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            // Create order
+            const order = {
+                id: 'ORD' + Date.now(),
+                date: new Date().toISOString(),
+                items: [...state.cart],
+                total: state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                shipping: document.querySelector('input[name="shipping"]:checked').value,
+                customer: { email, firstName, lastName, address, city, zipCode, country }
+            };
+            
+            state.orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(state.orders));
+            
+            // Clear cart
+            state.cart = [];
+            saveCart();
+            updateCart();
+            
+            // Show confirmation
+            showPage('orderConfirmationPage');
+            showToast('Order placed successfully!', 'check_circle');
+        }
+
+        // Utility Functions
+        function setDailyTip() {
+            const tipIndex = new Date().getDay() % tips.length;
+            document.getElementById('dailyTip').textContent = tips[tipIndex];
+        }
+
+        function showToast(message, icon = 'check_circle') {
+            document.getElementById('toastIcon').textContent = icon;
+            document.getElementById('toastMessage').textContent = message;
+            
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            
+            setTimeout(() => {
+                toast.classList.remove('flex');
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId).classList.add('flex');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('flex');
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showNotifications() {
+            showModal('notificationsModal');
+            document.getElementById('notificationDot').style.display = 'none';
+        }
+
+        function toggleDarkMode() {
+            state.darkMode = !state.darkMode;
+            localStorage.setItem('darkMode', state.darkMode);
+            
+            if (state.darkMode) {
+                document.documentElement.classList.add('dark');
+                showToast('Dark mode enabled');
+            } else {
+                document.documentElement.classList.remove('dark');
+                showToast('Light mode enabled');
+            }
+        }
+
+        function saveWishlist() {
+            localStorage.setItem('wishlist', JSON.stringify(state.wishlist));
+        }
+
+        function showOrders() {
+            showToast('Opening order history');
+        }
+
+        function showAddresses() {
+            showToast('Opening saved addresses');
+        }
+
+        function showSettings() {
+            showToast('Opening settings');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                showToast('Logged out successfully');
+                showPage('homePage');
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
